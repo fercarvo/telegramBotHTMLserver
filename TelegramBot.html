@@ -11,7 +11,7 @@
   <!-- CSS  -->
   
 </head>
-<body ng-app="myApp" ng-controller="controller">
+<body ng-app="myApp" >
   <nav class="light-blue lighten-1" role="navigation">
     <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Telegram Web Management</a>
       <ul class="right hide-on-med-and-down">
@@ -24,15 +24,27 @@
       <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
     </div>
   </nav>
-  <div class="section no-pad-bot" id="index-banner">
+  
+  <div class="section no-pad-bot" id="index-banner" ng-controller="myController">
     <div class="container">
       <br><br>
-      <h1 class="header center orange-text">Tittle F</h1>
       <div class="row center">
-        <h5 class="header col s12 light">Text F</h5>
+        <h5 class="header col s12 light">Insert Your Telegram Bot Token</h5>
       </div>
+	  
+	  <div class="row">
+	    <form class="col s12">
+	      <div class="row">
+	        <div class="input-field col s12" >
+	          <textarea id="textarea1" class="materialize-textarea" ng-model="token"></textarea>
+	          <label for="textarea1">Token</label>
+	        </div>
+	      </div>
+	    </form>
+	  </div>
+	  
       <div class="row center">
-        <a href=# id="download-button" class="btn-large waves-effect waves-light orange">Get Started</a>
+        <class ng-click="start()" id="download-button" class="btn-large waves-effect waves-light orange">Start bot manager</class>
       </div>
       <br><br>
 
@@ -40,7 +52,7 @@
   </div>
 
 
-  <div class="container">
+  <div class="container" >
     <div class="section">
 
       <!--   Icon Section   -->
@@ -108,46 +120,30 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
   <script>
-  	angular.module('myApp')
-    .factory('comun', function($http){
+  	angular.module('myApp', [])
+    .factory('Comun', ['$http', function($http){
         var comun = {};
         comun.muestra = {};
 
         return comun;
-    })
-    .controller('controller', function($scope, $state, $http, comun) {
+    }])
+    .controller('myController', ['$scope', '$http', 'Comun', function($scope, $http, Comun) {
 
-        $scope.muestras = {};
-        $scope.muestra = {};
+        //$scope.data = {};
+		//$scope.url = "https://api.telegram.org/bot" + $scope.token + "/getUpdates";
+		
+		$scope.start = function(){
+			console.log($scope.token);
+			$http.get("https://api.telegram.org/bot" + $scope.token + "/getUpdates")
+	            .then(function (response) {
+					console.log(response.data);
+	                $scope.data = response.data;
+					$scope.token = "";
+	            }
+	        );	
+		};
 
-        $http.get("/muestras")
-            .then(function (response) {
-                $scope.muestras = response.data;
-            }
-        );
-
-        //Funcion que bloquea el boton si su estado es distinto de registrado
-        $scope.bloquearCheck = function(muestra){
-            if (muestra.estado == "registrada") {
-                return false;    
-            } else {
-                return true;
-            }
-        }
-
-        //Funcion que cambia el estado de la muestra en la BDD 
-        $scope.cambiarEstado = function(muestra){
-            if (muestra.estado == "registrada") {
-                $http.put("/muestra/"+ muestra._id +"/estado/proceso", {})
-                .success(function(response){
-                    Materialize.toast(response.message, 3000, 'rounded teal');
-                    $scope.muestra.observacion = $scope.observacion;
-                    //$scope.apply();                   
-                });    
-            }
-        }   
-
-    })
+    }])
 
   </script>
   <script>
@@ -159,3 +155,4 @@
   </script>
 
   </body>
+</html>
