@@ -8,10 +8,12 @@
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+  <!-- CSS  -->
+  
 </head>
-<body>
+<body ng-app="myApp" ng-controller="controller">
   <nav class="light-blue lighten-1" role="navigation">
-    <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Logo</a>
+    <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Telegram Web Management</a>
       <ul class="right hide-on-med-and-down">
         <li><a href="#">Navbar Link</a></li>
       </ul>
@@ -25,12 +27,12 @@
   <div class="section no-pad-bot" id="index-banner">
     <div class="container">
       <br><br>
-      <h1 class="header center orange-text">Starter Template</h1>
+      <h1 class="header center orange-text">Tittle F</h1>
       <div class="row center">
-        <h5 class="header col s12 light">A modern responsive front-end framework based on Material Design</h5>
+        <h5 class="header col s12 light">Text F</h5>
       </div>
       <div class="row center">
-        <a href="http://materializecss.com/getting-started.html" id="download-button" class="btn-large waves-effect waves-light orange">Get Started</a>
+        <a href=# id="download-button" class="btn-large waves-effect waves-light orange">Get Started</a>
       </div>
       <br><br>
 
@@ -46,27 +48,27 @@
         <div class="col s12 m4">
           <div class="icon-block">
             <h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
-            <h5 class="center">Speeds up development</h5>
+            <h5 class="center">Title 1</h5>
 
-            <p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our custom components. Additionally, we refined animations and transitions to provide a smoother experience for developers.</p>
+            <p class="light">Text 1</p>
           </div>
         </div>
 
         <div class="col s12 m4">
           <div class="icon-block">
             <h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
-            <h5 class="center">User Experience Focused</h5>
+            <h5 class="center">Title 2</h5>
 
-            <p class="light">By utilizing elements and principles of Material Design, we were able to create a framework that incorporates components and animations that provide more feedback to users. Additionally, a single underlying responsive system across all platforms allow for a more unified user experience.</p>
+            <p class="light">Text 2</p>
           </div>
         </div>
 
         <div class="col s12 m4">
           <div class="icon-block">
             <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
-            <h5 class="center">Easy to work with</h5>
+            <h5 class="center">Title 3</h5>
 
-            <p class="light">We have provided detailed documentation as well as specific code examples to help new users get started. We are also always open to feedback and can answer any questions a user may have about Materialize.</p>
+            <p class="light">Text 3</p>
           </div>
         </div>
       </div>
@@ -82,12 +84,7 @@
   <footer class="page-footer orange">
     <div class="container">
       <div class="row">
-        <div class="col l6 s12">
-          <h5 class="white-text">Company Bio</h5>
-          <p class="grey-text text-lighten-4">We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.</p>
 
-
-        </div>
         <div class="col l3 s12">
           <h5 class="white-text">Settings</h5>
           <ul>
@@ -95,35 +92,70 @@
 
           </ul>
         </div>
-        <div class="col l3 s12">
-          <h5 class="white-text">Connect</h5>
-          <ul>
-            <li><a class="white-text" href="#!">Link 1</a></li>
 
-          </ul>
-        </div>
       </div>
     </div>
     <div class="footer-copyright">
       <div class="container">
-      Made by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+      Made by <a class="orange-text text-lighten-3" href=#>Edgar Carvajal</a>
       </div>
     </div>
   </footer>
 
 
   <!--  Scripts-->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
   <script>
+  	angular.module('myApp')
+    .factory('comun', function($http){
+        var comun = {};
+        comun.muestra = {};
+
+        return comun;
+    })
+    .controller('controller', function($scope, $state, $http, comun) {
+
+        $scope.muestras = {};
+        $scope.muestra = {};
+
+        $http.get("/muestras")
+            .then(function (response) {
+                $scope.muestras = response.data;
+            }
+        );
+
+        //Funcion que bloquea el boton si su estado es distinto de registrado
+        $scope.bloquearCheck = function(muestra){
+            if (muestra.estado == "registrada") {
+                return false;    
+            } else {
+                return true;
+            }
+        }
+
+        //Funcion que cambia el estado de la muestra en la BDD 
+        $scope.cambiarEstado = function(muestra){
+            if (muestra.estado == "registrada") {
+                $http.put("/muestra/"+ muestra._id +"/estado/proceso", {})
+                .success(function(response){
+                    Materialize.toast(response.message, 3000, 'rounded teal');
+                    $scope.muestra.observacion = $scope.observacion;
+                    //$scope.apply();                   
+                });    
+            }
+        }   
+
+    })
+
+  </script>
+  <script>
 	(function($){
 	  $(function(){
-
 	    $('.button-collapse').sideNav();
-
 	  }); // end of document ready
 	})(jQuery); // end of jQuery name space	
   </script>
 
   </body>
-</html>
