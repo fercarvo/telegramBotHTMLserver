@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
   <!-- CSS  -->
-  
+
 </head>
 <body ng-app="myApp" >
   <nav class="light-blue lighten-1" role="navigation">
@@ -24,14 +24,14 @@
       <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
     </div>
   </nav>
-  
+
   <div class="section no-pad-bot" id="index-banner" ng-controller="myController">
     <div class="container">
       <br><br>
       <div class="row center">
         <h5 class="header col s12 light">Insert Your Telegram Bot Token</h5>
       </div>
-	  
+
 	  <div class="row">
 	    <form class="col s12">
 	      <div class="row">
@@ -42,9 +42,10 @@
 	      </div>
 	    </form>
 	  </div>
-	  
-      <div class="row center">
-        <class ng-click="start()" id="download-button" class="btn-large waves-effect waves-light orange">Start bot manager</class>
+
+      <div class="row">
+        <div ng-click="start()" id="download-button" class="btn-large waves-effect waves-light orange left">Load token</div>
+        <div ng-click="messages()" id="download-button" class="btn-large waves-effect waves-light orange right">Get messages</div>
       </div>
       <br><br>
 
@@ -120,30 +121,64 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
   <script>
-  	angular.module('myApp', [])
-    .factory('Comun', ['$http', function($http){
-        var comun = {};
-        comun.muestra = {};
+  angular.module('myApp', [])
+  .factory('updates', ['$http', function($http){
+    var obj = {};
 
-        return comun;
-    }])
-    .controller('myController', ['$scope', '$http', 'Comun', function($scope, $http, Comun) {
+    obj.setToken = function(token){
+      obj.token = token;
+    }
 
-        //$scope.data = {};
-		//$scope.url = "https://api.telegram.org/bot" + $scope.token + "/getUpdates";
-		
-		$scope.start = function(){
-			console.log($scope.token);
-			$http.get("https://api.telegram.org/bot" + $scope.token + "/getUpdates")
-	            .then(function (response) {
-					console.log(response.data);
-	                $scope.data = response.data;
-					$scope.token = "";
-	            }
-	        );	
-		};
+    obj.getMessages = function(id){
+      var urlUpdates = "https://api.telegram.org/bot" + obj.token + "/getUpdates";
+      return $http.post(urlUpdates, {
+            offset: (function(){
+              if(id){
+                return id+1;
+              }
+            })(),
+            timeout: 10,
+            allowed_updates: ["message"]
+        }).then(function(res){
+          var bodyJSON = res.data;
 
-    }])
+          if(bodyJSON.result.length > 0){
+            var last = bodyJSON.result.length - 1;
+            var id = bodyJSON.result[last].update_id;
+
+            bodyJSON.result.map(function(item){
+              var id = item.message.from.id;
+              var text = "Hola mundo";
+              var parse_mode = "Markdown"
+              console.log(item.message.from.username, ": ", item.message.text);
+              //sendMessage(id, text, parse_mode, item.message.from.username);
+            });
+            obj.getMessages(id);
+          }else{
+            obj.getMessages();
+          }
+        });
+    };
+
+    return obj;
+  }])
+  .controller('myController', ['$scope', '$http', 'updates', function($scope, $http, updates) {
+
+
+    $scope.start = function(){
+      updates.setToken($scope.token);
+      console.log(updates.token);
+    }
+
+    $scope.messages = function(){
+      updates.getMessages();
+    }
+
+
+
+
+
+  }])
 
   </script>
   <script>
@@ -151,7 +186,7 @@
 	  $(function(){
 	    $('.button-collapse').sideNav();
 	  }); // end of document ready
-	})(jQuery); // end of jQuery name space	
+	})(jQuery); // end of jQuery name space
   </script>
 
   </body>
